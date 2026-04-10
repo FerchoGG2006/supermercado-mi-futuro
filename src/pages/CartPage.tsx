@@ -5,11 +5,35 @@ import { Footer } from '../components/layout/Footer';
 import { useStore } from '../store/useStore';
 
 export const CartPage = () => {
-    const { cart, updateQuantity, removeFromCart } = useStore();
+    const { cart, updateQuantity, removeFromCart, clearCart } = useStore();
     const itemsCount = cart.reduce((acc, item) => acc + item.quantity, 0);
     const subtotal = cart.reduce((acc, item) => acc + (parseFloat(item.product.price) * item.quantity), 0);
     const shipping = subtotal > 0 ? 4.50 : 0;
     const total = subtotal + shipping;
+
+    const handleCheckout = () => {
+        if (cart.length === 0) return;
+
+        let message = `🛒 *Nuevo Pedido - Supermercado Mi Futuro*\n\n`;
+        message += `*Detalles de la compra:*\n`;
+        
+        cart.forEach(item => {
+            message += `- ${item.quantity}x ${item.product.title} ($${parseFloat(item.product.price).toFixed(2)} c/u)\n`;
+        });
+
+        message += `\n*Subtotal:* $${subtotal.toFixed(2)}\n`;
+        if (shipping > 0) message += `*Envío:* $${shipping.toFixed(2)}\n`;
+        message += `*Total a pagar:* $${total.toFixed(2)}\n\n`;
+        message += `_Por favor, confírmenme el pedido y los detalles de entrega._`;
+
+        const encodedMessage = encodeURIComponent(message);
+        // Utilizando un número de WhatsApp genérico o de prueba. El usuario podrá cambiarlo luego.
+        const whatsappNumber = "573000000000"; 
+        window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, '_blank');
+        
+        // Opcional: limpiar carrito después de redirigir a WhatsApp
+        clearCart();
+    };
 
     return (
         <div className="min-h-screen flex flex-col">
@@ -95,8 +119,8 @@ export const CartPage = () => {
                                     <span className="text-3xl font-extrabold text-primary">${total.toFixed(2)}</span>
                                 </div>
                             </div>
-                            <button className="w-full bg-primary text-on-primary py-5 rounded-xl font-bold text-lg shadow-lg hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-                                Finalizar Compra <span className="material-symbols-outlined">arrow_forward</span>
+                            <button onClick={handleCheckout} disabled={cart.length === 0} className="w-full bg-primary text-on-primary py-5 rounded-xl font-bold text-lg shadow-lg hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                                Finalizar Pedido por WhatsApp <span className="material-symbols-outlined">send</span>
                             </button>
                         </div>
                     </aside>

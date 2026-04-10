@@ -11,6 +11,7 @@ interface StoreState {
   addToCart: (product: Product) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
+  clearCart: () => void;
 }
 
 const API_URL = 'http://localhost:3001/api';
@@ -36,6 +37,8 @@ export const useStore = create<StoreState>((set) => ({
   updateQuantity: (productId, quantity) => set((state) => ({
     cart: state.cart.map(item => item.product.id === productId ? { ...item, quantity: Math.max(1, quantity) } : item)
   })),
+
+  clearCart: () => set({ cart: [] }),
 
   fetchCategories: async () => {
     set({ isLoading: true });
