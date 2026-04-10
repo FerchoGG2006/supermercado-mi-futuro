@@ -5,12 +5,14 @@ import { BottomNavBar } from '../components/layout/BottomNavBar';
 import { Footer } from '../components/layout/Footer';
 import { useStore } from '../store/useStore';
 import { useEffect, useState } from 'react';
+import { formatPrice } from '../utils/format';
 
 export const ProductPage = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
     const { products, categories, fetchProducts, fetchCategories, addToCart, updateQuantity, cart } = useStore();
     const [qty, setQty] = useState(1);
+    const [weightObj, setWeightObj] = useState({ label: "500 g", multiplier: 0.5 });
 
     useEffect(() => {
         if (products.length === 0) fetchProducts();
@@ -32,15 +34,28 @@ export const ProductPage = () => {
         );
     }
 
-    const cartItem = cart.find(c => c.product.id === product.id);
+    const isMeat = category?.slug === 'carniceria' || category?.slug === 'pescaderia';
 
     const handleAddToCart = (buyNow: boolean = false) => {
-        if (cartItem) {
-            updateQuantity(product.id, cartItem.quantity + qty);
+        let finalProduct = { ...product };
+        
+        if (isMeat) {
+            finalProduct = {
+                ...product,
+                id: `${product.id}-${weightObj.multiplier}`,
+                title: `${product.title} (${weightObj.label})`,
+                price: (parseFloat(product.price) * weightObj.multiplier).toString(),
+            };
+        }
+
+        const exactCartItem = cart.find(c => c.product.id === finalProduct.id);
+
+        if (exactCartItem) {
+            updateQuantity(finalProduct.id, exactCartItem.quantity + qty);
         } else {
-            addToCart(product);
+            addToCart(finalProduct);
             if (qty > 1) {
-                updateQuantity(product.id, qty);
+                updateQuantity(finalProduct.id, qty);
             }
         }
         
@@ -98,11 +113,37 @@ export const ProductPage = () => {
                         </section>
                         <div className="p-6 md:p-8 rounded-[2rem] bg-surface-container-low space-y-6 md:space-y-8">
                             <div className="flex flex-wrap items-baseline gap-3 md:gap-4">
-                                <span className="text-3xl md:text-4xl font-extrabold font-headline text-primary">${product.price}</span>
-                                {product.oldPrice && <span className="text-on-surface-variant line-through">${product.oldPrice}</span>}
+                                <span className="text-3xl md:text-4xl font-extrabold font-headline text-primary">
+                                    {isMeat ? formatPrice(parseFloat(product.price) * weightObj.multiplier) : formatPrice(product.price)}
+                                </span>
+                                {product.oldPrice && !isMeat && <span className="text-on-surface-variant line-through">{formatPrice(product.oldPrice)}</span>}
                             </div>
+                            
+                            {isMeat && (
+                                <div className="space-y-3">
+                                    <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant">Selecciona el corte/peso</label>
+                                    <div className="flex flex-wrap gap-2">
+                                        {[
+                                            { label: '250 g', multiplier: 0.25 },
+                                            { label: '500 g', multiplier: 0.5 },
+                                            { label: '1 Kg', multiplier: 1 },
+                                            { label: '2 Kg', multiplier: 2 }
+                                        ].map((opt) => (
+                                            <button 
+                                                key={opt.label}
+                                                onClick={() => setWeightObj(opt)}
+                                                className={`px-4 py-2 rounded-xl text-sm font-bold border-2 transition-all ${weightObj.label === opt.label ? 'border-primary bg-primary/10 text-primary' : 'border-outline-variant/30 text-on-surface-variant hover:border-outline-variant'}`}
+                                            >
+                                                {opt.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <p className="text-xs text-on-surface-variant mt-2">*{formatPrice(product.price)} / Kg</p>
+                                </div>
+                            )}
+
                             <div className="space-y-4">
-                                <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant">Cantidad</label>
+                                <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant">Cantidad {isMeat ? `de porciones (${weightObj.label})` : ''}</label>
                                 <div className="flex items-center gap-6">
                                     <div className="flex items-center bg-surface-container-lowest rounded-full p-1 ring-1 ring-outline-variant/20">
                                         <button onClick={() => setQty(Math.max(1, qty - 1))} className="w-10 h-10 flex items-center justify-center hover:bg-surface-container-low rounded-full transition-colors"><span className="material-symbols-outlined">remove</span></button>

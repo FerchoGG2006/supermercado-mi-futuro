@@ -3,12 +3,13 @@ import { TopAppBar } from '../components/layout/TopAppBar';
 import { BottomNavBar } from '../components/layout/BottomNavBar';
 import { Footer } from '../components/layout/Footer';
 import { useStore } from '../store/useStore';
+import { formatPrice } from '../utils/format';
 
 export const CartPage = () => {
     const { cart, updateQuantity, removeFromCart, clearCart } = useStore();
     const itemsCount = cart.reduce((acc, item) => acc + item.quantity, 0);
     const subtotal = cart.reduce((acc, item) => acc + (parseFloat(item.product.price) * item.quantity), 0);
-    const shipping = subtotal > 0 ? 4.50 : 0;
+    const shipping = subtotal > 0 ? 12000 : 0;
     const total = subtotal + shipping;
 
     const handleCheckout = () => {
@@ -18,12 +19,12 @@ export const CartPage = () => {
         message += `*Detalles de la compra:*\n`;
         
         cart.forEach(item => {
-            message += `- ${item.quantity}x ${item.product.title} ($${parseFloat(item.product.price).toFixed(2)} c/u)\n`;
+            message += `- ${item.quantity}x ${item.product.title} (${formatPrice(item.product.price)} c/u)\n`;
         });
 
-        message += `\n*Subtotal:* $${subtotal.toFixed(2)}\n`;
-        if (shipping > 0) message += `*Envío:* $${shipping.toFixed(2)}\n`;
-        message += `*Total a pagar:* $${total.toFixed(2)}\n\n`;
+        message += `\n*Subtotal:* ${formatPrice(subtotal)}\n`;
+        if (shipping > 0) message += `*Envío:* ${formatPrice(shipping)}\n`;
+        message += `*Total a pagar:* ${formatPrice(total)}\n\n`;
         message += `_Por favor, confírmenme el pedido y los detalles de entrega._`;
 
         const encodedMessage = encodeURIComponent(message);
@@ -73,7 +74,7 @@ export const CartPage = () => {
                                             </div>
                                         </div>
                                         <div className="text-right w-full sm:w-auto mt-4 sm:mt-0">
-                                            <p className="font-bold text-xl">${(parseFloat(item.product.price) * item.quantity).toFixed(2)}</p>
+                                            <p className="font-bold text-xl">{formatPrice(parseFloat(item.product.price) * item.quantity)}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -112,11 +113,11 @@ export const CartPage = () => {
                         <div className="bg-surface-container-highest rounded-3xl p-8 shadow-sm">
                             <h2 className="text-xl font-bold mb-6">Resumen del Pedido</h2>
                             <div className="space-y-4 mb-8">
-                                <div className="flex justify-between text-on-surface-variant"><span>Subtotal</span><span className="font-semibold text-on-surface">${subtotal.toFixed(2)}</span></div>
-                                <div className="flex justify-between text-on-surface-variant"><span>Gastos de envío</span><span className="font-semibold text-on-surface">${shipping.toFixed(2)}</span></div>
+                                <div className="flex justify-between text-on-surface-variant"><span>Subtotal</span><span className="font-semibold text-on-surface">{formatPrice(subtotal)}</span></div>
+                                <div className="flex justify-between text-on-surface-variant"><span>Gastos de envío</span><span className="font-semibold text-on-surface">{formatPrice(shipping)}</span></div>
                                 <div className="pt-4 mt-4 border-t border-outline-variant/20 flex justify-between items-baseline">
                                     <span className="text-lg font-bold">Total</span>
-                                    <span className="text-3xl font-extrabold text-primary">${total.toFixed(2)}</span>
+                                    <span className="text-3xl font-extrabold text-primary">{formatPrice(total)}</span>
                                 </div>
                             </div>
                             <button onClick={handleCheckout} disabled={cart.length === 0} className="w-full bg-primary text-on-primary py-5 rounded-xl font-bold text-lg shadow-lg hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">

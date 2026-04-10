@@ -5,6 +5,7 @@ import { TopAppBar } from '../components/layout/TopAppBar';
 import { BottomNavBar } from '../components/layout/BottomNavBar';
 import { Footer } from '../components/layout/Footer';
 import { useStore } from '../store/useStore';
+import { formatPrice } from '../utils/format';
 
 export const HomePage = () => {
     const { categories, products, fetchCategories, fetchProducts, isLoading, addToCart } = useStore();
@@ -91,8 +92,8 @@ export const HomePage = () => {
                                                 <h4 className="font-headline font-bold text-on-surface mb-4 group-hover:text-primary transition-colors leading-tight min-h-[40px]">{prod.title}</h4>
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex flex-col">
-                                                        {prod.oldPrice && <span className="text-outline-variant text-xs line-through">${prod.oldPrice}</span>}
-                                                        <span className="text-on-surface font-extrabold text-xl font-headline">${prod.price}</span>
+                                                        {prod.oldPrice && <span className="text-outline-variant text-xs line-through">{formatPrice(prod.oldPrice)}</span>}
+                                                        <span className="text-on-surface font-extrabold text-xl font-headline">{formatPrice(prod.price)}</span>
                                                     </div>
                                                     <button onClick={() => { addToCart(prod); toast.success(`${prod.title} al carrito`); }} className="bg-primary text-white w-10 h-10 rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform" aria-label="Añadir al carrito">
                                                         <span className="material-symbols-outlined">add_shopping_cart</span>

@@ -5,6 +5,7 @@ import { BottomNavBar } from '../components/layout/BottomNavBar';
 import { Footer } from '../components/layout/Footer';
 import { useStore } from '../store/useStore';
 import { useEffect } from 'react';
+import { formatPrice } from '../utils/format';
 
 export const CatalogPage = () => {
     const navigate = useNavigate();
@@ -98,8 +99,8 @@ export const CatalogPage = () => {
                                             <h3 className="text-lg font-bold text-on-surface mb-2 leading-tight">{prod.title}</h3>
                                             <div className="flex items-center justify-between mt-4">
                                                 <div className="flex flex-col">
-                                                    {prod.oldPrice && <span className="text-xs text-on-surface-variant line-through">${prod.oldPrice}</span>}
-                                                    <span className="text-xl font-extrabold text-primary">${prod.price}</span>
+                                                    {prod.oldPrice && <span className="text-xs text-on-surface-variant line-through">{formatPrice(prod.oldPrice)}</span>}
+                                                    <span className="text-xl font-extrabold text-primary">{formatPrice(prod.price)}</span>
                                                 </div>
                                                 <button onClick={() => { addToCart(prod); toast.success(`${prod.title} al carrito`); }} className="bg-primary text-white w-12 h-12 rounded-xl flex items-center justify-center hover:scale-110 active:scale-90 transition-all font-bold">
                                                     <span className="material-symbols-outlined">add_shopping_cart</span>
