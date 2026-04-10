@@ -1,28 +1,67 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { TopAppBar } from '../components/layout/TopAppBar';
 import { BottomNavBar } from '../components/layout/BottomNavBar';
 import { Footer } from '../components/layout/Footer';
+import { useStore } from '../store/useStore';
+import { useEffect, useState } from 'react';
 
 export const ProductPage = () => {
     const navigate = useNavigate();
+    const { id } = useParams<{ id: string }>();
+    const { products, categories, fetchProducts, fetchCategories, addToCart, updateQuantity, cart } = useStore();
+    const [qty, setQty] = useState(1);
+
+    useEffect(() => {
+        if (products.length === 0) fetchProducts();
+        if (categories.length === 0) fetchCategories();
+    }, [products.length, categories.length, fetchProducts, fetchCategories]);
+
+    const product = products.find(p => p.id === id);
+    const category = categories.find(c => c.id === product?.categoryId);
+
+    if (!product) {
+        return (
+            <div className="min-h-screen flex flex-col">
+                <TopAppBar />
+                <main className="pt-32 text-center flex-grow">
+                    <h2 className="text-2xl font-bold">Cargando producto...</h2>
+                </main>
+                <Footer />
+            </div>
+        );
+    }
+
+    const cartItem = cart.find(c => c.product.id === product.id);
+
+    const handleAddToCart = () => {
+        if (cartItem) {
+            updateQuantity(product.id, cartItem.quantity + qty);
+        } else {
+            addToCart(product);
+            if (qty > 1) {
+                updateQuantity(product.id, qty);
+            }
+        }
+        navigate('/cart');
+    };
+
     return (
         <div className="min-h-screen flex flex-col">
             <TopAppBar />
             <main className="pt-24 pb-32 w-full max-w-[1600px] mx-auto px-6 lg:px-12 flex-grow">
                 <nav className="mb-8 flex items-center gap-2 text-on-surface-variant text-sm">
-                    <Link to="/" className="hover:text-primary transition-colors">Groceries</Link>
+                    <Link to="/" className="hover:text-primary transition-colors">Inicio</Link>
                     <span className="material-symbols-outlined text-sm">chevron_right</span>
-                    <Link to="/catalog" className="hover:text-primary transition-colors">Produce</Link>
+                    <Link to={`/catalog${category ? `?category=${category.slug}` : ''}`} className="hover:text-primary transition-colors">{category?.name || 'Catálogo'}</Link>
                     <span className="material-symbols-outlined text-sm">chevron_right</span>
-                    <span className="font-semibold text-on-surface">Organic Avocados</span>
+                    <span className="font-semibold text-on-surface">{product.title}</span>
                 </nav>
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
                     <div className="lg:col-span-7 space-y-6">
                         <div className="aspect-square bg-surface-container-low rounded-[2rem] overflow-hidden group relative">
-                            <img alt="Avocado" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3-btzEDFRhVi4SWnqaGekMNMPPhuLdHlOSt8BP1SVyvHyyoPCe-DHRM2czAcLQqS2HaJtgCLDJCa_INiGbYyTcgB1OXEY_HfPFwcfryjsI0wrSZxRK-63-mv1gK89xPvxbeVB3tBY4ImyGvH_i6gTDSTXkv-TQB2xzPrgSIdHpqukwn5KbcoC-SwoXalaLGe4fji8RZYUibmf2ZgCnyTz26MUSNiEmF1RbUa7XWJIktHc_jUv5Xwc6-kt0TKgbZvG0jDWGG19YVXd"/>
+                            <img alt={product.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src={product.image}/>
                             <div className="absolute top-6 left-6 flex flex-col gap-2">
-                                <span className="bg-tertiary-fixed text-tertiary px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase">Organic</span>
-                                <span className="bg-error-container text-on-error-container px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase">Fresh Arrival</span>
+                                {product.tag && <span className="bg-error-container text-on-error-container px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase">{product.tag}</span>}
                             </div>
                         </div>
                         <div className="grid grid-cols-4 gap-4">
@@ -44,36 +83,34 @@ export const ProductPage = () => {
                         <section>
                             <div className="flex items-center gap-2 mb-4">
                                 <div className="flex text-tertiary-fixed-dim">
-                                    {[1,2,3,4].map(s => <span key={s} className="material-symbols-outlined text-sm" style={{fontVariationSettings: "'FILL' 1"}}>star</span>)}
-                                    <span className="material-symbols-outlined text-sm" style={{fontVariationSettings: "'FILL' 1"}}>star_half</span>
+                                    {[1,2,3,4,5].map(s => <span key={s} className="material-symbols-outlined text-sm" style={{fontVariationSettings: "'FILL' 1"}}>star</span>)}
                                 </div>
-                                <span className="text-sm font-semibold text-on-surface-variant">(128 reviews)</span>
+                                <span className="text-sm font-semibold text-on-surface-variant">(Opiniones verificadas)</span>
                             </div>
-                            <h2 className="text-3xl md:text-5xl font-extrabold font-headline tracking-tight text-on-surface mb-4 leading-[1.1]">Hass Organic Avocados, Large</h2>
-                            <p className="text-lg md:text-xl text-on-surface-variant leading-relaxed">Sourced directly from certified organic farms in Michoacán. Perfect for artisan sourdough toast or a smooth, homemade guacamole.</p>
+                            <h2 className="text-3xl md:text-5xl font-extrabold font-headline tracking-tight text-on-surface mb-4 leading-[1.1]">{product.title}</h2>
+                            <p className="text-lg md:text-xl text-on-surface-variant leading-relaxed">{product.description || "Un producto de la más alta calidad, seleccionado cuidadosamente para ti por Supermercado Mi Futuro."}</p>
                         </section>
                         <div className="p-6 md:p-8 rounded-[2rem] bg-surface-container-low space-y-6 md:space-y-8">
                             <div className="flex flex-wrap items-baseline gap-3 md:gap-4">
-                                <span className="text-3xl md:text-4xl font-extrabold font-headline text-primary">$4.99</span>
-                                <span className="text-on-surface-variant line-through">$6.50</span>
-                                <span className="text-sm font-bold text-on-error-container bg-error-container px-2 py-0.5 rounded">23% OFF</span>
+                                <span className="text-3xl md:text-4xl font-extrabold font-headline text-primary">${product.price}</span>
+                                {product.oldPrice && <span className="text-on-surface-variant line-through">${product.oldPrice}</span>}
                             </div>
                             <div className="space-y-4">
-                                <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant">Quantity</label>
+                                <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant">Cantidad</label>
                                 <div className="flex items-center gap-6">
                                     <div className="flex items-center bg-surface-container-lowest rounded-full p-1 ring-1 ring-outline-variant/20">
-                                        <button className="w-10 h-10 flex items-center justify-center hover:bg-surface-container-low rounded-full transition-colors"><span className="material-symbols-outlined">remove</span></button>
-                                        <span className="w-12 text-center font-bold text-lg">2</span>
-                                        <button className="w-10 h-10 flex items-center justify-center hover:bg-surface-container-low rounded-full transition-colors"><span className="material-symbols-outlined">add</span></button>
+                                        <button onClick={() => setQty(Math.max(1, qty - 1))} className="w-10 h-10 flex items-center justify-center hover:bg-surface-container-low rounded-full transition-colors"><span className="material-symbols-outlined">remove</span></button>
+                                        <span className="w-12 text-center font-bold text-lg">{qty}</span>
+                                        <button onClick={() => setQty(qty + 1)} className="w-10 h-10 flex items-center justify-center hover:bg-surface-container-low rounded-full transition-colors"><span className="material-symbols-outlined">add</span></button>
                                     </div>
-                                    <span className="text-sm text-on-surface-variant">4 units available</span>
+                                    <span className="text-sm text-on-surface-variant">Disponible en tienda</span>
                                 </div>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <button onClick={() => navigate('/cart')} className="bg-primary text-on-primary py-4 px-8 rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all">
-                                    <span className="material-symbols-outlined text-xl">shopping_basket</span> Add to Cart
+                                <button onClick={handleAddToCart} className="bg-primary text-on-primary py-4 px-8 rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all">
+                                    <span className="material-symbols-outlined text-xl">shopping_basket</span> Añadir al Carrito
                                 </button>
-                                <button onClick={() => navigate('/cart')} className="bg-tertiary-fixed-dim text-on-tertiary-fixed py-4 px-8 rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all">Buy Now</button>
+                                <button onClick={handleAddToCart} className="bg-tertiary-fixed-dim text-on-tertiary-fixed py-4 px-8 rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all">Comprar Ahora</button>
                             </div>
                         </div>
                     </div>

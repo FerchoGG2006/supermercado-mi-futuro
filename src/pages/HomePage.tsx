@@ -1,9 +1,18 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { TopAppBar } from '../components/layout/TopAppBar';
 import { BottomNavBar } from '../components/layout/BottomNavBar';
 import { Footer } from '../components/layout/Footer';
+import { useStore } from '../store/useStore';
 
 export const HomePage = () => {
+    const { categories, products, fetchCategories, fetchProducts, isLoading } = useStore();
+
+    useEffect(() => {
+        fetchCategories();
+        fetchProducts();
+    }, [fetchCategories, fetchProducts]);
+
     return (
         <div className="min-h-screen flex flex-col">
             <TopAppBar />
@@ -13,22 +22,21 @@ export const HomePage = () => {
                         <div className="bg-surface-container-low rounded-3xl p-6 sticky top-28">
                             <h3 className="font-headline font-bold text-lg mb-6 text-primary tracking-tight">Departamentos</h3>
                             <nav className="space-y-1">
-                                {[
-                                    { icon: 'restaurant', name: 'Frutas y Verduras' },
-                                    { icon: 'flatware', name: 'Carnicería' },
-                                    { icon: 'bakery_dining', name: 'Panadería' },
-                                    { icon: 'liquor', name: 'Vinos y Licores' },
-                                    { icon: 'set_meal', name: 'Pescadería' },
-                                    { icon: 'cleaning_services', name: 'Limpieza' },
-                                ].map((dept) => (
-                                    <Link key={dept.name} to="/catalog" className="flex items-center justify-between group px-4 py-3 rounded-xl hover:bg-surface-container-highest transition-colors">
-                                        <div className="flex items-center gap-3">
-                                            <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary">{dept.icon}</span>
-                                            <span className="text-on-surface-variant group-hover:text-on-surface font-medium">{dept.name}</span>
-                                        </div>
-                                        <span className="material-symbols-outlined text-outline-variant text-sm">chevron_right</span>
-                                    </Link>
-                                ))}
+                                {categories.length === 0 && isLoading ? (
+                                    <div className="animate-pulse space-y-4">
+                                        {[1,2,3,4,5,6].map((i) => <div key={i} className="h-10 bg-surface-container-highest rounded-xl"></div>)}
+                                    </div>
+                                ) : (
+                                    categories.map((dept) => (
+                                        <Link key={dept.id} to={`/catalog?category=${dept.slug}`} className="flex items-center justify-between group px-4 py-3 rounded-xl hover:bg-surface-container-highest transition-colors">
+                                            <div className="flex items-center gap-3">
+                                                <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary">{dept.icon}</span>
+                                                <span className="text-on-surface-variant group-hover:text-on-surface font-medium">{dept.name}</span>
+                                            </div>
+                                            <span className="material-symbols-outlined text-outline-variant text-sm">chevron_right</span>
+                                        </Link>
+                                    ))
+                                )}
                             </nav>
                             <div className="mt-12 p-6 bg-primary rounded-2xl relative overflow-hidden">
                                 <div className="relative z-10">
@@ -67,30 +75,32 @@ export const HomePage = () => {
                                 </Link>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                {[
-                                    { title: "Aguacate Hass Premium Kg.", price: "$66.75", oldPrice: "$89.00", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCsvdbtZpNYZ3v3JmH3lsuLj7lkFobegRwZP-qgIVeN1_d7wccQrP7Gci90cix106xWprA7klgVBhNWk7GvzTdhGzWXbEfD4Dft-C9eC4zjyWZX9y9JSgf-RLDcO5DCi7Y3DtLAuLW8sWzVWPyG6Z4grER2iMgMre12zPODF0zhorVhajg-Y_Zr3v2RtK2CbxEn_Dd_xrTfoPpo1megHF0fyemnZcZSHL3SXXqdNVZ07egm65vMyuEhaiqLrPDi9eVdJeRf0Wg48Y0Q", tag: "-25%", dept: "Frutería", link: "/product" },
-                                    { title: "Rib Eye Sonora High Choice 400g", price: "$345.00", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBe5AJffbt0MPvWDGvoh97wfzBtrt24LkY5sOi5OpHzO8ScMq8Pgt-6Qs7iapm_7SSwJ6AIb2aiCSyEY2tvXnPvLU9LtXnpvolYmODbfpmF66UlWP8IL5fZ9Vh0f-5wbPLKsBfZ-XjBQnYgJhJko1pMRQ87n-twMPtt-WFTWAKO5Ha7h_jYksxe-CWZNSINPqJenyIUh5cSQd-3advzigMJdBevYJr4R7xpnZgBTrD55YUvS5RuToMVA4Dy1HRizDYZQNqQK2fjotH4", tag: "Exclusivo", dept: "Carnicería" },
-                                    { title: "Vino Tinto Valle de Guadalupe 750ml", price: "$580.00", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAozJ2EL3b9c3B0LqjxhL81JhFlS1gXepxvgDavOluWOMC61XfnIxMunXLaGEOqu3ofUnAFk_VgJQZg4M3n8O05zh-3WSMxAGPeY9aFdtFuLG5bTW1gb7rmjPbjA3WnINRNBKTVTtTFvwqWLz9ZbdcRoBwblAXckWbYb9D5cP19pv_CW8zq9j46tP9FYhoeBATy8Ndr8YhL6hU-IzzzXwrZ85dqvhR9rO6p6amRRinRu2ePrcd52JqcdW2kbda7P5J3mFbRVVUy1PC5", tag: "Orgánico", dept: "Cava" },
-                                    { title: "Hogaza de Masa Madre Artesanal", price: "$95.00", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBh6nMwJCfbdMDlhhA1LuMTBoDSKjL1L4qixDd0YjaUxEbqThVMN48sNaNOkCL1HldsICR4Of6QCMfl32XQNazqLnBtAgxzNBioarua6Sec1a878rIscRmZRCHorKeMvLMmnT7BZB8mh_enmbhSYinQrVLG0Wiy-KYQ9e4UOFrOc0rz58bTWsPzJ4yGCcwBnXqKmYQP4ZcEQ5T2IP7q4yc9l_RTx_rBVFj2Sk6vvZk7iHbnMIa9nTQjxW6YKNtA4-S2VaQAu5vtWdgH", tag: "2x1", dept: "Panadería" },
-                                ].map((prod, idx) => (
-                                    <div key={idx} className="bg-surface-container-lowest p-5 rounded-3xl hover:shadow-[0_20px_50px_rgba(0,0,0,0.05)] transition-all duration-300 group">
-                                        <Link to={prod.link || "/catalog"} className="block relative mb-4 bg-surface-container rounded-2xl overflow-hidden aspect-square">
-                                            <img alt={prod.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src={prod.img}/>
-                                            <span className="absolute top-3 left-3 bg-error-container text-on-error-container px-2 py-1 rounded-lg text-xs font-bold font-label">{prod.tag}</span>
-                                        </Link>
-                                        <p className="text-on-surface-variant text-xs font-bold font-label uppercase tracking-wider mb-1">{prod.dept}</p>
-                                        <h4 className="font-headline font-bold text-on-surface mb-4 group-hover:text-primary transition-colors leading-tight min-h-[40px]">{prod.title}</h4>
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex flex-col">
-                                                {prod.oldPrice && <span className="text-outline-variant text-xs line-through">{prod.oldPrice}</span>}
-                                                <span className="text-on-surface font-extrabold text-xl font-headline">{prod.price}</span>
+                                {products.length === 0 && isLoading ? (
+                                    <div className="col-span-1 md:col-span-2 lg:col-span-4 text-center py-12 text-on-surface-variant">Cargando increíbles ofertas...</div>
+                                ) : (
+                                    products.map((prod) => {
+                                        const deptName = categories.find(c => c.id === prod.categoryId)?.name || 'Especialidades';
+                                        return (
+                                            <div key={prod.id} className="bg-surface-container-lowest p-5 rounded-3xl hover:shadow-[0_20px_50px_rgba(0,0,0,0.05)] transition-all duration-300 group">
+                                                <Link to={`/product/${prod.id}`} className="block relative mb-4 bg-surface-container rounded-2xl overflow-hidden aspect-square">
+                                                    <img alt={prod.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src={prod.image}/>
+                                                    {prod.tag && <span className="absolute top-3 left-3 bg-error-container text-on-error-container px-2 py-1 rounded-lg text-xs font-bold font-label">{prod.tag}</span>}
+                                                </Link>
+                                                <p className="text-on-surface-variant text-xs font-bold font-label uppercase tracking-wider mb-1">{deptName}</p>
+                                                <h4 className="font-headline font-bold text-on-surface mb-4 group-hover:text-primary transition-colors leading-tight min-h-[40px]">{prod.title}</h4>
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex flex-col">
+                                                        {prod.oldPrice && <span className="text-outline-variant text-xs line-through">${prod.oldPrice}</span>}
+                                                        <span className="text-on-surface font-extrabold text-xl font-headline">${prod.price}</span>
+                                                    </div>
+                                                    <button onClick={() => useStore.getState().addToCart(prod)} className="bg-primary text-white w-10 h-10 rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform" aria-label="Añadir al carrito">
+                                                        <span className="material-symbols-outlined">add_shopping_cart</span>
+                                                    </button>
+                                                </div>
                                             </div>
-                                            <button className="bg-primary text-white w-10 h-10 rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform">
-                                                <span className="material-symbols-outlined">add_shopping_cart</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
+                                        )
+                                    })
+                                )}
                             </div>
                         </section>
                         <section className="grid grid-cols-12 gap-6 h-auto md:h-[400px]">
