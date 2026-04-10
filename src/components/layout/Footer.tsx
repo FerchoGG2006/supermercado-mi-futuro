@@ -1,9 +1,11 @@
+import logoUrl from '../../assets/logo_mifuturo.jpg';
+
 export const Footer = () => (
     <footer className="bg-surface-container-low mt-12 py-12 border-t border-outline-variant/10">
         <div className="w-full max-w-[1600px] mx-auto px-6 lg:px-12 grid grid-cols-1 md:grid-cols-4 gap-12">
             <div className="col-span-1 md:col-span-1">
                 <div className="flex items-center gap-3 mb-6">
-                    <img src="/logo.jpg" alt="Mi Futuro Logo" className="h-10 object-contain rounded" />
+                    <img src={logoUrl} alt="Mi Futuro Logo" className="h-10 object-contain rounded" />
                 </div>
                 <p className="text-on-surface-variant text-sm leading-relaxed">
                     Elevando los estándares del supermercado tradicional hacia una experiencia de bienestar y calidad absoluta.

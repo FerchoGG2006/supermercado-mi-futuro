@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import logoUrl from '../../assets/logo_mifuturo.jpg';
 
 interface TopAppBarProps {
   cartCount?: number;
@@ -9,7 +10,7 @@ export const TopAppBar = ({ cartCount = 3 }: TopAppBarProps) => {
     <header className="fixed top-0 w-full z-50 bg-[#fbf9f4]/80 dark:bg-stone-950/80 backdrop-blur-xl">
       <div className="flex justify-between items-center px-6 lg:px-12 py-4 w-full max-w-[1600px] mx-auto">
         <Link to="/" className="flex items-center gap-4">
-          <img src="/logo.jpg" alt="Mi Futuro Logo" className="h-8 md:h-10 object-contain rounded" />
+          <img src={logoUrl} alt="Mi Futuro Logo" className="h-8 md:h-10 object-contain rounded" />
         </Link>
         <div className="hidden md:flex flex-1 max-w-2xl mx-12">
           <div className="relative w-full">
