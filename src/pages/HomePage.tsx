@@ -1,12 +1,13 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { TopAppBar } from '../components/layout/TopAppBar';
 import { BottomNavBar } from '../components/layout/BottomNavBar';
 import { Footer } from '../components/layout/Footer';
 import { useStore } from '../store/useStore';
 
 export const HomePage = () => {
-    const { categories, products, fetchCategories, fetchProducts, isLoading } = useStore();
+    const { categories, products, fetchCategories, fetchProducts, isLoading, addToCart } = useStore();
 
     useEffect(() => {
         fetchCategories();
@@ -93,7 +94,7 @@ export const HomePage = () => {
                                                         {prod.oldPrice && <span className="text-outline-variant text-xs line-through">${prod.oldPrice}</span>}
                                                         <span className="text-on-surface font-extrabold text-xl font-headline">${prod.price}</span>
                                                     </div>
-                                                    <button onClick={() => useStore.getState().addToCart(prod)} className="bg-primary text-white w-10 h-10 rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform" aria-label="Añadir al carrito">
+                                                    <button onClick={() => { addToCart(prod); toast.success(`${prod.title} al carrito`); }} className="bg-primary text-white w-10 h-10 rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform" aria-label="Añadir al carrito">
                                                         <span className="material-symbols-outlined">add_shopping_cart</span>
                                                     </button>
                                                 </div>

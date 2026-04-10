@@ -1,4 +1,5 @@
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { TopAppBar } from '../components/layout/TopAppBar';
 import { BottomNavBar } from '../components/layout/BottomNavBar';
 import { Footer } from '../components/layout/Footer';
@@ -33,7 +34,7 @@ export const ProductPage = () => {
 
     const cartItem = cart.find(c => c.product.id === product.id);
 
-    const handleAddToCart = () => {
+    const handleAddToCart = (buyNow: boolean = false) => {
         if (cartItem) {
             updateQuantity(product.id, cartItem.quantity + qty);
         } else {
@@ -42,7 +43,12 @@ export const ProductPage = () => {
                 updateQuantity(product.id, qty);
             }
         }
-        navigate('/cart');
+        
+        if (buyNow) {
+            navigate('/cart');
+        } else {
+            toast.success(`${qty}x ${product.title} añadido(s)`);
+        }
     };
 
     return (
@@ -107,10 +113,10 @@ export const ProductPage = () => {
                                 </div>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <button onClick={handleAddToCart} className="bg-primary text-on-primary py-4 px-8 rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all">
+                                <button onClick={() => handleAddToCart(false)} className="bg-primary text-on-primary py-4 px-8 rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all">
                                     <span className="material-symbols-outlined text-xl">shopping_basket</span> Añadir al Carrito
                                 </button>
-                                <button onClick={handleAddToCart} className="bg-tertiary-fixed-dim text-on-tertiary-fixed py-4 px-8 rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all">Comprar Ahora</button>
+                                <button onClick={() => handleAddToCart(true)} className="bg-tertiary-fixed-dim text-on-tertiary-fixed py-4 px-8 rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all">Comprar Ahora</button>
                             </div>
                         </div>
                     </div>

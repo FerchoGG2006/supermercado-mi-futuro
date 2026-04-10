@@ -1,4 +1,5 @@
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { TopAppBar } from '../components/layout/TopAppBar';
 import { BottomNavBar } from '../components/layout/BottomNavBar';
 import { Footer } from '../components/layout/Footer';
@@ -100,7 +101,7 @@ export const CatalogPage = () => {
                                                     {prod.oldPrice && <span className="text-xs text-on-surface-variant line-through">${prod.oldPrice}</span>}
                                                     <span className="text-xl font-extrabold text-primary">${prod.price}</span>
                                                 </div>
-                                                <button onClick={() => addToCart(prod)} className="bg-primary text-white w-12 h-12 rounded-xl flex items-center justify-center hover:scale-110 active:scale-90 transition-all font-bold">
+                                                <button onClick={() => { addToCart(prod); toast.success(`${prod.title} al carrito`); }} className="bg-primary text-white w-12 h-12 rounded-xl flex items-center justify-center hover:scale-110 active:scale-90 transition-all font-bold">
                                                     <span className="material-symbols-outlined">add_shopping_cart</span>
                                                 </button>
                                             </div>
